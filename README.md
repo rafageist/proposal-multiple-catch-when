@@ -1,50 +1,86 @@
-# template-for-proposals
+# ECMAScript Multiple and conditional "catch" blocks with new "when" keyword
 
-A repository template for ECMAScript proposals.
+## Introduction
 
-## Before creating a proposal
+JavaScript’s `try-catch` structure is a powerful tool for error handling, but it can be improved to offer more flexibility and clarity. Unlike statically-typed languages, JavaScript does not allow developers to specify the type of the error caught in a `catch` block. This limitation can lead to unnecessary complexity and less precise error handling. This proposal introduces the ability to have multiple `catch` blocks, each with a `when` clause, allowing developers to apply specific conditions to each `catch` block. This enhancement provides a more controlled and expressive approach to managing different types of exceptions.
 
-Please ensure the following:
-  1. You have read the [process document](https://tc39.github.io/process-document/)
-  1. You have reviewed the [existing proposals](https://github.com/tc39/proposals/)
-  1. You are aware that your proposal requires being a member of TC39, or locating a TC39 delegate to “champion” your proposal
+## Motivation
 
-## Create your proposal repo
+### Learning from C#
 
-Follow these steps:
-  1. Click the green [“use this template”](https://github.com/tc39/template-for-proposals/generate) button in the repo header. (Note: Do not fork this repo in GitHub's web interface, as that will later prevent transfer into the TC39 organization)
-  1. Update ecmarkup and the biblio to the latest version: `npm install --save-dev ecmarkup@latest && npm install --save-dev --save-exact @tc39/ecma262-biblio@latest`.
-  1. Go to your repo settings page:
-      1. Under “General”, under “Features”, ensure “Issues” is checked, and disable “Wiki”, and “Projects” (unless you intend to use Projects)
-      1. Under “Pull Requests”, check “Always suggest updating pull request branches” and “automatically delete head branches”
-      1. Under the “Pages” section on the left sidebar, and set the source to “deploy from a branch” and check “Enforce HTTPS”
-      1. Under the “Actions” section on the left sidebar, under “General”, select “Read and write permissions” under “Workflow permissions” and click “Save”
-  1. [“How to write a good explainer”][explainer] explains how to make a good first impression.
+In languages like C#, the `when` keyword is used within `catch` blocks to add conditions that must be true for the block to execute. This allows for more precise error handling without the need for nested `if` statements, making code cleaner and more maintainable. By introducing a similar `when` clause to JavaScript, this proposal aims to bring the same level of control and clarity to JavaScript’s error handling.
 
-      > Each TC39 proposal should have a `README.md` file which explains the purpose
-      > of the proposal and its shape at a high level.
-      >
-      > ...
-      >
-      > The rest of this page can be used as a template ...
+### Addressing JavaScript’s Limitations
 
-      Your explainer can point readers to the `index.html` generated from `spec.emu`
-      via markdown like
+JavaScript currently lacks the ability to type the error variable in a `catch` block, often leading to less precise error handling. Developers must write additional conditional logic within `catch` blocks to check the type of the error or other conditions, which can make the code harder to read and maintain. The `when` clause offers a solution by allowing developers to filter errors directly within the `catch` statement, reducing the need for nested conditions and making the intention of the error handling code clearer.
 
-      ```markdown
-      You can browse the [ecmarkup output](https://ACCOUNT.github.io/PROJECT/)
-      or browse the [source](https://github.com/ACCOUNT/PROJECT/blob/HEAD/spec.emu).
-      ```
+### Why `when`?
 
-      where *ACCOUNT* and *PROJECT* are the first two path elements in your project's Github URL.
-      For example, for github.com/**tc39**/**template-for-proposals**, *ACCOUNT* is “tc39”
-      and *PROJECT* is “template-for-proposals”.
+The `when` clause allows developers to conditionally handle exceptions based on custom logic, similar to type-specific `catch` blocks in statically-typed languages. This makes the error-handling code more readable, maintainable, and specific.
 
+### Compatibility
 
-## Maintain your proposal repo
+This proposal is designed to be both backward and forward compatible:
 
-  1. Make your changes to `spec.emu` (ecmarkup uses HTML syntax, but is not HTML, so I strongly suggest not naming it “.html”)
-  1. Any commit that makes meaningful changes to the spec, should run `npm run build` to verify that the build will succeed and the output looks as expected.
-  1. Whenever you update `ecmarkup`, run `npm run build` to verify that the build will succeed and the output looks as expected.
+- **Backward Compatibility**: The `when` clause is an optional addition and does not affect existing JavaScript code. Without the `when` clause, the `try-catch` structure functions as it currently does.
+    
+- **Forward Compatibility**: If JavaScript or TypeScript introduces typed `catch` variables in the future, the `when` clause will remain relevant and useful, providing an additional layer of conditional logic that works alongside any future typing features.
+    
 
-  [explainer]: https://github.com/tc39/how-we-work/blob/HEAD/explainer.md
+## Syntax
+
+The proposed syntax introduces the `when` clause within `catch` blocks, enabling developers to specify conditions directly:
+
+```javascript
+try {
+  // Code that may throw an exception 
+}  
+catch (err) when (err instanceof TypeError) {   
+  // Handle TypeError 
+}  
+catch (err) when (err instanceof ReferenceError) {
+  // Handle ReferenceError 
+}  
+finally {   
+  // Code that always runs 
+}
+```
+
+## Example
+
+Here’s a practical example:
+
+```javascript
+try {
+  let data = fetchData();
+} 
+catch (err) when (err instanceof NetworkError) {
+  console.error('Network error:', err.message);
+} 
+catch (err) when (err instanceof SyntaxError) {
+  console.error('Syntax error in response:', err.message);
+} 
+finally {
+  console.log('Cleanup code, executed regardless of success or failure.');
+}
+```
+
+## Benefits
+
+- **Precision**: Handle specific error types or conditions more effectively.
+- **Clarity**: The `when` clause makes it clear which errors are being handled and under what conditions.
+- **Simplicity**: Reduces the need for complex nested conditions within `catch` blocks.
+- **Expressiveness**: Provides a more powerful way to handle different error scenarios in a single `try-catch` statement.
+
+## Considerations
+
+- **Performance**: Optimizations may be needed to minimize any potential performance impact from introducing multiple `catch` blocks with conditions.
+- **Tooling**: Updates to linters, transpilers, and other tools may be necessary to support the new syntax.
+
+## Conclusion
+
+Enhancing JavaScript’s error handling with multiple `catch` blocks and a `when` clause offers a natural and powerful way to manage exceptions. This proposal builds on the existing `try-catch` structure, providing developers with more control and flexibility while maintaining code clarity.
+
+## Further Discussion
+
+We invite feedback and suggestions from the community to refine and improve this proposal.
