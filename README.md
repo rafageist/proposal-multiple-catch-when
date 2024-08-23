@@ -31,7 +31,7 @@ This proposal is designed to be both backward and forward compatible:
 
 The proposed syntax introduces the `when` clause within `catch` blocks, enabling developers to specify conditions directly:
 
-```javascript
+```
 try {
   // Code that may throw an exception 
 }  
@@ -50,9 +50,9 @@ finally {
 
 Here’s a practical example:
 
-```javascript
+```
 try {
-  let data = fetchData();
+  data = fetchData();
 } 
 catch (err) when (err instanceof NetworkError) {
   console.error('Network error:', err.message);
