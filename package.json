@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "template-for-proposals",
-  "description": "A repository template for ECMAScript proposals.",
+  "name": "proposal-multiple-catch-when",
+  "description": "Proposes enhancing JavaScript's try-catch by adding a when clause, enabling multiple conditional catch blocks.",
   "scripts": {
     "start": "npm run build-loose -- --watch",
     "build": "npm run build-loose -- --strict",
@@ -14,8 +14,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@tc39/ecma262-biblio": "^2.1.2571",
-    "ecmarkup": "^17.0.0"
+    "@tc39/ecma262-biblio": "2.1.2759",
+    "ecmarkup": "^19.0.0"
   },
   "engines": {
     "node": ">= 12"
