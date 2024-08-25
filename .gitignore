@@ -44,3 +44,4 @@ pnpm-lock.yaml
 
 # Build directory
 build
+test.js
