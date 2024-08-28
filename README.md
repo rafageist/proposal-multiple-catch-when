@@ -1,4 +1,4 @@
-# ECMAScript Universal and Conditional "catch" blocks with the new "when" Keyword
+# ECMAScript Universal and conditional "catch" blocks with the new "when" keyword
 
 ## Introduction
 
