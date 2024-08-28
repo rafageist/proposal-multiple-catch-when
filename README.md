@@ -423,6 +423,28 @@ This ensures that the traditional flow of exception handling is preserved. The f
 - **Simplicity**: Reduces the need for complex nested conditions within `catch` blocks.
 - **Expressiveness**: Offers a more powerful way to handle different error scenarios.
 
+## Why Braces `{}` Matter
+
+While some proposals seek to move away from the traditional `try-catch` structure, often resorting to `if` statements or introducing new operators, this proposal embraces and expands upon the existing use of braces `{}` to maintain consistency with the current JavaScript syntax and control flow structures.
+
+### Importance of Braces
+
+Braces `{}` are a fundamental part of JavaScript's syntax, serving as the primary means to define code blocks. By leveraging this familiar structure, the proposal ensures that developers can manage errors within the same framework they use for other control flows like `if`, `for`, and `while` loops.
+
+### Control Flow Integrity
+
+At its core, error handling is about controlling the flow of execution in the presence of unexpected conditions. By expanding the capabilities of blocks with optional `catch` and `finally` clauses, this proposal provides a powerful yet intuitive way to manage errors without introducing new or unfamiliar syntax. The focus remains on enhancing existing structures, ensuring that the language remains coherent and that the learning curve for developers is minimal.
+
+### Avoiding Redundant Constructs
+
+Moving away from `try-catch` often results in the use of `if` statements or other control structures that, while functional, can lead to redundant or less expressive code. This proposal addresses error handling in a more integrated manner, allowing developers to manage exceptions within the same block structure that controls their program's logic.
+
+### A Structured Solution for a Structured Problem
+
+Error handling is inherently about structuring your code to handle the unexpected. This proposal keeps the focus on structure by using control flow blocks, rather than introducing operators or new constructs that might disrupt the logical flow of code. By sticking with braces, we ensure that error handling remains a natural extension of the language's existing syntax and philosophy.
+
+This proposal advocates for an evolution of JavaScript's error-handling capabilities that respects and enhances the language's foundational structures, ensuring that developers can write cleaner, more maintainable code without sacrificing familiarity or simplicity.
+
 ## Conclusion
 
 This proposal expands JavaScript’s error handling capabilities by allowing any block of code to have its own `catch` block, with the option to conditionally execute those blocks using the `when` keyword. This enhancement provides developers with more control, clarity, and flexibility while maintaining compatibility with existing JavaScript syntax.
@@ -445,9 +467,23 @@ This proposal was inspired by the need to improve JavaScript's error-handling me
 
 By synthesizing these ideas and experiences from various languages and systems, this proposal aims to provide a more powerful and flexible approach to error handling in JavaScript, while maintaining the simplicity and dynamism that the language is known for.
 
+## References
+
+1. Crockford, Douglas. *JavaScript: The Good Parts*. O'Reilly Media, 2008. ISBN: 978-0596517748.
+
+2. Simpson, Kyle. *You Don't Know JS: Scope & Closures*. O'Reilly Media, 2014. ISBN: 978-1449335588.
+
+3. Hunt, Andrew, and David Thomas. *The Pragmatic Programmer: Your Journey to Mastery*. Addison-Wesley Professional, 1999. ISBN: 978-0201616224.
+
+4. Scott, Michael L. *Programming Language Pragmatics*. Morgan Kaufmann, 2009. ISBN: 978-0123745149.
+
+5. McConnell, Steve. *Code Complete: A Practical Handbook of Software Construction*. Microsoft Press, 2004. ISBN: 978-0735619678.
+
 ## Author
 
 Rafael Rodríguez Ramírez
+
+rafageist@divengine.com
 
 [rafageist.com](https://rafageist.com)
 
