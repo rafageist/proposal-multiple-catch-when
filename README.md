@@ -63,15 +63,15 @@ catch (<var>) when (<boolean expression)
 Syntax 
 
     Block[Yield, Await, Return] :
-        { StatementList[?Yield, ?Await, ?Return] } CatchClause[?Yield, ?Await, ?Return]? FinallyClause[?Yield, ?Await, ?Return]?
+        { StatementList[?Yield, ?Await, ?Return] } Catch[?Yield, ?Await, ?Return]? Finally[?Yield, ?Await, ?Return]?
 
-    CatchClause[Yield, Await, Return] :
+    Catch[Yield, Await, Return] :
         catch ( CatchParameter[?Yield, ?Await] ) when ( Expression ) Block[?Yield, ?Await, ?Return]
         catch ( CatchParameter[?Yield, ?Await] ) Block[?Yield, ?Await, ?Return]
         catch when ( Expression ) Block[?Yield, ?Await, ?Return]
         catch Block[?Yield, ?Await, ?Return]
 
-    FinallyClause[Yield, Await, Return] :
+    Finally[Yield, Await, Return] :
         finally Block[?Yield, ?Await, ?Return]
 
 14.15 The try Statement
@@ -86,7 +86,7 @@ TryStatement[Yield, Await, Return] :
 ### Static Semantics: Early Errors
 
 ```plaintext
-Block: { StatementList } CatchClause[?Yield, ?Await, ?Return]? FinallyClause[?Yield, ?Await, ?Return]?
+Block: { StatementList } Catch[?Yield, ?Await, ?Return]? Finally[?Yield, ?Await, ?Return]?
 ```
 
 - It is a Syntax Error if `BoundNames` of `CatchParameter` contains any duplicate elements.
@@ -97,7 +97,7 @@ Block: { StatementList } CatchClause[?Yield, ?Await, ?Return]? FinallyClause[?Yi
 ### Runtime Semantics: CatchClauseEvaluation
 
 ```plaintext
-CatchClause: catch ( CatchParameter ) when ( Expression ) Block
+Catch: catch ( CatchParameter ) when ( Expression ) Block
 ```
 
 1. Let `oldEnv` be the running execution context's `LexicalEnvironment`.
@@ -113,7 +113,12 @@ CatchClause: catch ( CatchParameter ) when ( Expression ) Block
 
     b. Return `? status`.
 
-7. If the result of evaluating `Expression` is `false`, return `undefined`.
+7. If the result of evaluating Expression is false:
+
+    a. If there is a subsequent catch block within the same scope, continue with its evaluation.
+
+    b. If no subsequent catch block exists in the current scope, propagate the exception to the next catch block in the higher scope.
+
 8. Let `B` be `Completion(Evaluation)` of `Block`.
 9. Set the running execution context's `LexicalEnvironment` to `oldEnv`.
 10. Return `? B`.
@@ -121,23 +126,23 @@ CatchClause: catch ( CatchParameter ) when ( Expression ) Block
 ### Runtime Semantics: Block Evaluation
 
 ```plaintext
-Block : { StatementList } CatchClause[?Yield, ?Await, ?Return]? FinallyClause[?Yield, ?Await, ?Return]?
+Block : { StatementList } Catch[?Yield, ?Await, ?Return]? Finally[?Yield, ?Await, ?Return]?
 ```
 
 1. Let `B` be `Completion(Evaluation)` of `StatementList`.
 2. If `B` is a `throw` completion, then: 
 
-   a. If a `CatchClause` is present, evaluate `CatchClauseEvaluation` with `B.[[Value]]`.
+   a. If a `Catch` is present, evaluate `CatchClauseEvaluation` with `B.[[Value]]`.
 
    b. If `CatchClauseEvaluation` returns `undefined`, proceed to step 3.
 
    c. Otherwise, let `C` be the result of `CatchClauseEvaluation`.
 
-3. If no `CatchClause` is present or all `CatchClause` evaluations result in `undefined`, rethrow the exception.
+3. If no `Catch` is present or all `Catch` evaluations result in `undefined`, rethrow the exception.
 
-4. If a `FinallyClause` is present, evaluate it and:
+4. If a `Finally` is present, evaluate it and:
 
-   a. If the `FinallyClause` evaluation results in an abrupt completion, return that result.
+   a. If the `Finally` evaluation results in an abrupt completion, return that result.
 
    b. Otherwise, proceed with the value from the previous step.
 
