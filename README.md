@@ -426,3 +426,31 @@ This ensures that the traditional flow of exception handling is preserved. The f
 ## Conclusion
 
 This proposal expands JavaScript’s error handling capabilities by allowing any block of code to have its own `catch` block, with the option to conditionally execute those blocks using the `when` keyword. This enhancement provides developers with more control, clarity, and flexibility while maintaining compatibility with existing JavaScript syntax.
+
+## Inspiration
+
+This proposal was inspired by the need to improve JavaScript's error-handling mechanisms, drawing from various languages and systems that have implemented similar concepts:
+
+1. **C# and F# `when` Clause**: Both C# and F# provide a `when` clause in their `catch` blocks, allowing developers to handle exceptions based on specific conditions. This inspired the idea of bringing a similar conditional mechanism to JavaScript.
+
+2. **Scala's Pattern Matching in `catch`**: Scala's ability to use pattern matching within `catch` blocks, combined with conditional logic, influenced the design of conditional `catch` blocks with `when` in this proposal.
+
+3. **PL/pgSQL's `EXCEPTION` Handling**: In PL/pgSQL, the EXCEPTION section within functions allows for specific error handling based on the type of exception, providing a structured approach to managing errors in procedural code. This inspired the idea of enhancing JavaScript's error handling within blocks and functions.
+
+4. **BASIC's `On Error` Statement**: The `On Error` mechanism in BASIC languages like Visual Basic offers a way to direct the flow of control when an error occurs, similar to the concept of catch blocks. This inspired the proposal to allow more flexible and conditional error handling in JavaScript.
+
+5. **Ruby's `rescue` with Conditions**: Ruby's elegant error-handling using `rescue`, which can include conditional logic within the block, inspired the flexibility and readability goals of this proposal.
+
+6. **Real-World Scenarios**: The need for more granular control over error handling in complex JavaScript applications highlighted the limitations of the current `try-catch` structure and motivated the development of this more flexible approach.
+
+By synthesizing these ideas and experiences from various languages and systems, this proposal aims to provide a more powerful and flexible approach to error handling in JavaScript, while maintaining the simplicity and dynamism that the language is known for.
+
+## Author
+
+Rafael Rodríguez Ramírez
+
+[rafageist.com](https://rafageist.com)
+
+## License
+
+This proposal is licensed under the [MIT License](./LICENSE).
