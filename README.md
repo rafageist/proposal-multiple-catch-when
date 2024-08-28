@@ -21,7 +21,11 @@ Currently, JavaScript lacks the ability to type or conditionally handle errors d
 The proposed syntax allows for `catch` blocks to be attached to any code block and for those blocks to conditionally execute based on the `when` clause:
 
 ```txt
-/* any block of code */ 
+/* 
+any block of code: try, anonymous, functions, 
+if, do, class, catch, finally, switch, ... 
+*/ 
+
 {
     // Code that may throw an error
     // ...
