@@ -16,30 +16,124 @@ JavaScript's `try-catch` structure is a fundamental tool for error handling, but
 
 Currently, JavaScript lacks the ability to type or conditionally handle errors directly in `catch` blocks, leading to complex and less readable code. This proposal introduces a way to manage errors more precisely and clearly, inspired by similar features in languages like C#.
 
-## Syntax
+## Proposed Syntax
 
 The proposed syntax allows for `catch` blocks to be attached to any code block and for those blocks to conditionally execute based on the `when` clause:
 
+```txt
+/* any block of code */ 
+{
+    // Code that may throw an error
+    // ...
+} 
+catch (<var>) when (<boolean expression) 
+{
+    // Error-handling logic
+    // ...
+    // catch is also a block!
+}
+catch (<var>) when (<boolean expression) 
+{
+    // Error-handling logic
+    // ...
+}
+finally 
+{
+    // Cleanup code, executed regardless of success or failure
+
+    // ... but finally is also a block!
+} 
+catch (<var>) when (<boolean expression) 
+{
+    // Error-handling logic
+    // ...
+}
+...
+```
+
+## Grammar
+
+```grammar
+14.2 Block 
+
+Syntax 
+
+    Block[Yield, Await, Return] :
+        { StatementList[?Yield, ?Await, ?Return] } CatchClause[?Yield, ?Await, ?Return]? FinallyClause[?Yield, ?Await, ?Return]?
+
+    CatchClause[Yield, Await, Return] :
+        catch ( CatchParameter[?Yield, ?Await] ) when ( Expression ) Block[?Yield, ?Await, ?Return]
+        catch ( CatchParameter[?Yield, ?Await] ) Block[?Yield, ?Await, ?Return]
+        catch when ( Expression ) Block[?Yield, ?Await, ?Return]
+        catch Block[?Yield, ?Await, ?Return]
+
+    FinallyClause[Yield, Await, Return] :
+        finally Block[?Yield, ?Await, ?Return]
+
+14.15 The try Statement
+
+Syntax
+
+TryStatement[Yield, Await, Return] :
+    Block[?Yield, ?Await, ?Return]
+    
+```
+
+## Comparison with Existing Syntax
+
+### Current
+
 ```js
+try 
 {
     // Code that may throw an error
     throw new Error("Error in block");
-
-} catch (error) when (error.message.includes("block")) {
-    console.log("Caught an error in block:", error.message);
-
-    // Nested catch block
-    throw new Error("Error within catch");
-
-} catch (nestedError) {
-    console.log("Caught a nested error:", nestedError.message);
+} 
+catch (error) 
+{
+    if (error.message.includes("block")) {
+        console.log("Caught an error in block:", error.message);
+    } else {
+        throw error;
+    }
 }
-
 ```
 
-## Example
+### Proposed
 
-Here's a practical example using the new syntax:
+```js
+/* any block of code */ 
+{
+    // Code that may throw an error
+    throw new Error("Error in block");
+} 
+catch (error) /* optional */ when (error.message.includes("block")) 
+{
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+## Examples
+
+### `try-catch` (the current specification)
+
+This proposal is compatible with the existing `try-catch` syntax.
+
+```js
+try 
+{
+    // Code that may throw an error
+    throw new Error("Error in block");
+} 
+catch (error) 
+{
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+### `try-catch` with `when` clause
+
+Users can conditionally handle errors based on the `when` clause.
 
 ```js
 try {
@@ -56,7 +150,30 @@ finally {
 }
 ```
 
-## Examples for  `if-catch` 
+### `anonymous-catch` (no `try` block)
+
+```js
+{
+    // Code that may throw an error
+    throw new Error("Error in block");
+} 
+catch (error) when (error.message.includes("block")) 
+{
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+### `if-catch`
+
+```js
+if (condition) {
+    throw new Error("Error in block");
+} catch (error) {
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+### `if-catch` with `when` Clause
 
 ```js
 if (condition) {
@@ -66,7 +183,7 @@ if (condition) {
 }
 ```
 
-## Examples for  `for-catch` 
+### `for-catch`
 
 ```js
 for (let i = 0; i < 3; i++) {
@@ -76,7 +193,7 @@ for (let i = 0; i < 3; i++) {
 }
 ```
 
-## Examples for  `while-catch` 
+### `while-catch`
 
 ```js
 
@@ -89,7 +206,7 @@ while (i < 3) {
 }
 ```
 
-## Examples for  `function-catch` 
+### `function-catch`
 
 ```js
 function fetchData() {
@@ -99,7 +216,7 @@ function fetchData() {
 }
 ```
 
-## Examples for  `catch-catch` 
+### `catch-catch`
 
 ```js
 /* ... any block of code ... */ {
@@ -111,19 +228,31 @@ function fetchData() {
 }
 ```
 
-## Examples for  `class-catch` 
+## `class-catch`
+
+This example demonstrates how a `catch` block can be attached to a class definition to handle errors during the execution of any class method.
 
 ```js
 class MyClass {
     constructor() {
         throw new Error("Error in block");
     } 
+
+    method() {
+        throw new Error("Error in block");
+    } catch (error) when (error.message.includes("block")) {
+        console.log("Caught an error in block:", error.message);
+    }
+
+    static staticMethod() {
+        throw new Error("Error in block");
+    }
 } catch (error) when (error.message.includes("block")) {
     console.log("Caught an error in block:", error.message);
 }
 ```
 
-## Examples for  `switch-catch` 
+## `switch-catch`
 
 ```js
 switch (value) {
@@ -136,7 +265,7 @@ switch (value) {
 }
 ```
 
-## Examples for  `do-catch` 
+## `do-catch`
 
 ```js
 do {
@@ -146,7 +275,7 @@ do {
 } while (false);
 ```
 
-## Examples for  `finally-catch` 
+## `finally-catch`
 
 ```js
 try {
@@ -161,31 +290,16 @@ try {
 }
 ```
 
-## Comparison with Existing Syntax
-
-### Current Syntax
+## `try-catch-throw-catch`
 
 ```js
 try {
-    // Code that may throw an error
-    throw new Error("Error in block");
-} catch (error) {
-    if (error.message.includes("block")) {
-        console.log("Caught an error in block:", error.message);
-    } else {
-        throw error;
-    }
-}
-```
-
-### Proposed Syntax
-
-```js
-{
-    // Code that may throw an error
     throw new Error("Error in block");
 } catch (error) when (error.message.includes("block")) {
     console.log("Caught an error in block:", error.message);
+    throw new Error("Error in catch block");
+} catch (nestedError) {
+    console.log("Caught a nested error:", nestedError.message);
 }
 ```
 
