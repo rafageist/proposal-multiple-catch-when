@@ -56,6 +56,139 @@ finally {
 }
 ```
 
+## Examples for  `if-catch` 
+
+```js
+if (condition) {
+    throw new Error("Error in block");
+} catch (error) when (error.message.includes("block")) {
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+## Examples for  `for-catch` 
+
+```js
+for (let i = 0; i < 3; i++) {
+    throw new Error("Error in block " + i);
+} catch (error) when (error.message.includes("block 1")) {
+    console.log("Caught an error in block 1:", error.message);
+}
+```
+
+## Examples for  `while-catch` 
+
+```js
+
+let i = 0;
+while (i < 3) {
+    throw new Error("Error in block " + i);
+} catch (error) when (error.message.includes("block 1")) {
+    console.log("Caught an error in block 1:", error.message);
+    i++;
+}
+```
+
+## Examples for  `function-catch` 
+
+```js
+function fetchData() {
+    throw new Error("Error in block");
+} catch (error) when (error.message.includes("block")) {
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+## Examples for  `catch-catch` 
+
+```js
+/* ... any block of code ... */ {
+    throw new Error("Error in block");
+} catch (error) when (error.message.includes("block")) {
+    console.log("Caught an error in block:", error.message);
+} catch (nestedError) {
+    console.log("Caught a nested error:", nestedError.message);
+}
+```
+
+## Examples for  `class-catch` 
+
+```js
+class MyClass {
+    constructor() {
+        throw new Error("Error in block");
+    } 
+} catch (error) when (error.message.includes("block")) {
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+## Examples for  `switch-catch` 
+
+```js
+switch (value) {
+    case 1:
+        throw new Error("Error in block 1");
+    case 2:
+        throw new Error("Error in block 2");
+} catch (error) when (error.message.includes("block 1")) {
+    console.log("Caught an error in block 1:", error.message);
+}
+```
+
+## Examples for  `do-catch` 
+
+```js
+do {
+    throw new Error("Error in block");
+} catch (error) when (error.message.includes("block")) {
+    console.log("Caught an error in block:", error.message);
+} while (false);
+```
+
+## Examples for  `finally-catch` 
+
+```js
+try {
+    throw new Error("Error in block");
+} catch (error) when (error.message.includes("block")) {
+    console.log("Caught an error in block:", error.message);
+} finally {
+    console.log("Finally block executed.");
+    throw new Error("Error in finally block");
+} catch (nestedError) {
+    console.log("Caught a nested error:", nestedError.message);
+}
+```
+
+## Comparison with Existing Syntax
+
+### Current Syntax
+
+```js
+try {
+    // Code that may throw an error
+    throw new Error("Error in block");
+} catch (error) {
+    if (error.message.includes("block")) {
+        console.log("Caught an error in block:", error.message);
+    } else {
+        throw error;
+    }
+}
+```
+
+### Proposed Syntax
+
+```js
+{
+    // Code that may throw an error
+    throw new Error("Error in block");
+} catch (error) when (error.message.includes("block")) {
+    console.log("Caught an error in block:", error.message);
+}
+```
+
 ## Benefits
 
 - **Precision**: Handle specific error types or conditions directly.
