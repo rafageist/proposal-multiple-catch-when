@@ -2,15 +2,30 @@
 
 ## Introduction
 
-JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of code, not just `try` blocks, to have associated `catch` blocks. Furthermore, each `catch` block can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
+JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of code, not just `try` blocks, to have associated `catch` blocks, and also `catch` statement after any expression. Furthermore, each `catch block` and `catch expression` can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
 
 ## Key Concepts
 
 1. **Universal `catch` Blocks**: Any block of code, including functions, loops, and even other `catch` blocks, can have its own `catch` statement.
 2. **Nested `catch` Blocks**: Since a `catch` block is just another block of code, it can also have its own `catch` to handle errors within error-handling logic.
-3. **Conditional `catch` with `when`**: The `when` clause allows for conditional execution of `catch` blocks, improving the readability and control of error handling.
+3. **Expressions with `catch`**: Any expression that throws an error can be followed by a `catch expression`  to handle that error.
+4. **Conditional `catch` with `when`**: The `when` clause allows for conditional execution of `catch` blocks, improving the readability and control of error handling.
+5. **Conditional catch block allow error variable in the same scope**: The error variable is available in the same scope as the catch block, allowing for more precise error handling.
 
 ## Motivation
+
+### Engagement
+
+JavaScript developers often encounter situations where they need to handle errors in specific ways based on the type of error or other conditions. The current `try-catch` structure can be limiting in these scenarios, leading to complex nested conditions or multiple `try-catch` blocks. By allowing `catch` blocks to be attached to any block of code, developers can handle errors more precisely and maintain a cleaner code structure.
+
+Language as Go and Rust, allow to catch errors inline, but `catch` is for control flow, and is important keep this principle. To maintain the control flow, the `catch` block in this proposal is optional, and the error variable is available in the same scope as the catch block. With this proposal the following code is possible:
+
+```js
+{ var a = 1 } catch (e);
+
+console.log(a);
+console.log(e);
+```
 
 ### Improving JavaScript’s Error Handling
 
@@ -52,6 +67,11 @@ catch (<var>) when (<boolean expression)
     // Error-handling logic
     // ...
 }
+
+catch (<var>);
+
+catch (<var>) when (<boolean expression);
+
 ...
 ```
 
@@ -70,6 +90,8 @@ Syntax
         catch ( CatchParameter[?Yield, ?Await] ) Block[?Yield, ?Await, ?Return]
         catch when ( Expression ) Block[?Yield, ?Await, ?Return]
         catch Block[?Yield, ?Await, ?Return]
+        catch ( CatchParameter[?Yield, ?Await] )
+        catch
 
     Finally[Yield, Await, Return] :
         finally Block[?Yield, ?Await, ?Return]
@@ -103,25 +125,59 @@ Catch: catch ( CatchParameter ) when ( Expression ) Block
 1. Let `oldEnv` be the running execution context's `LexicalEnvironment`.
 2. Let `catchEnv` be `NewDeclarativeEnvironment(oldEnv)`.
 3. For each element `argName` of the `BoundNames` of `CatchParameter`, do:
-
-    a. Perform `! catchEnv.CreateMutableBinding(argName, false)`.
+   - a. Perform `! catchEnv.CreateMutableBinding(argName, false)`.
 4. Set the running execution context's `LexicalEnvironment` to `catchEnv`.
 5. Let `status` be `Completion(BindingInitialization)` of `CatchParameter` with arguments `thrownValue` and `catchEnv`.
 6. If `status` is an abrupt completion, then:
-
-    a. Set the running execution context's `LexicalEnvironment` to `oldEnv`. 
-
-    b. Return `? status`.
-
-7. If the result of evaluating Expression is false:
-
-    a. If there is a subsequent catch block within the same scope, continue with its evaluation.
-
-    b. If no subsequent catch block exists in the current scope, propagate the exception to the next catch block in the higher scope.
-
+   - a. Set the running execution context's `LexicalEnvironment` to `oldEnv`.
+   - b. Return `? status`.
+7. If the result of evaluating `Expression` is false:
+   - a. If there is a subsequent catch block within the same scope, continue with its evaluation.
+   - b. If no subsequent catch block exists, propagate the exception.
 8. Let `B` be `Completion(Evaluation)` of `Block`.
 9. Set the running execution context's `LexicalEnvironment` to `oldEnv`.
 10. Return `? B`.
+
+```plaintext
+Catch: catch ( CatchParameter )
+```
+
+1. Let `oldEnv` be the running execution context's `LexicalEnvironment`.
+2. Let `catchEnv` be `NewDeclarativeEnvironment(oldEnv)`.
+3. For each element `argName` of the `BoundNames` of `CatchParameter`, do:
+   - a. Perform `! catchEnv.CreateMutableBinding(argName, false)`.
+4. Set the running execution context's `LexicalEnvironment` to `catchEnv`.
+5. Let `status` be `Completion(BindingInitialization)` of `CatchParameter` with arguments `thrownValue` and `catchEnv`.
+6. If `status` is an abrupt completion, then:
+   - a. Set the running execution context's `LexicalEnvironment` to `oldEnv`.
+   - b. Return `? status`.
+7. Set the running execution context's `LexicalEnvironment` to `oldEnv`.
+8. Continue with the next statement without executing a block.
+
+```plaintext
+Catch: catch when ( Expression ) Block
+```
+
+1. Let `oldEnv` be the running execution context's `LexicalEnvironment`.
+2. Skip the environment creation since there is no `CatchParameter`.
+3. Evaluate the `Expression`:
+   - a. If the result of evaluating `Expression` is false:
+      - i. If there is a subsequent catch block within the same scope, continue with its evaluation.
+      - ii. If no subsequent catch block exists in the current scope, propagate the exception to the next catch block in the higher scope.
+4. If `Expression` is true, proceed to the next statement.
+5. Skip block evaluation since there is no block.
+6. Continue execution.
+
+```plaintext
+Catch: catch 
+```
+
+1. Let `oldEnv` be the running execution context's `LexicalEnvironment`.
+2. Skip the environment creation since there is no `CatchParameter`.
+3. Simply continue execution without binding any error or evaluating a block.
+4. Proceed to the next statement.
+
+
 
 ### Runtime Semantics: Block Evaluation
 
@@ -130,22 +186,14 @@ Block : { StatementList } Catch[?Yield, ?Await, ?Return]? Finally[?Yield, ?Await
 ```
 
 1. Let `B` be `Completion(Evaluation)` of `StatementList`.
-2. If `B` is a `throw` completion, then: 
-
-   a. If a `Catch` is present, evaluate `CatchClauseEvaluation` with `B.[[Value]]`.
-
-   b. If `CatchClauseEvaluation` returns `undefined`, proceed to step 3.
-
-   c. Otherwise, let `C` be the result of `CatchClauseEvaluation`.
-
+2. If `B` is a `throw` completion, then:
+   - a. If a `Catch` is present, evaluate `CatchClauseEvaluation` with `B.[[Value]]`.
+   - b. If `CatchClauseEvaluation` returns `undefined`, proceed to step 3.  
+   - c. Otherwise, let `C` be the result of `CatchClauseEvaluation`.
 3. If no `Catch` is present or all `Catch` evaluations result in `undefined`, rethrow the exception.
-
 4. If a `Finally` is present, evaluate it and:
-
-   a. If the `Finally` evaluation results in an abrupt completion, return that result.
-
-   b. Otherwise, proceed with the value from the previous step.
-
+   - a. If the `Finally` evaluation results in an abrupt completion, return that result.
+   - b. Otherwise, proceed with the value from the previous step.
 5. Return `? C` or `B`, as appropriate.
 
 ## Comparison with Existing Syntax
@@ -232,6 +280,31 @@ No `try` block is required to have a `catch` block.
     // Code that may throw an error
     throw new Error("Error in block");
 } 
+catch (error) when (error.message.includes("block")) 
+{
+    console.log("Caught an error in block:", error.message);
+}
+```
+
+### `object literal-catch`
+
+No `try` block is required to have a `catch` block inside an object literal.
+
+```js
+const obj = {
+    method() {
+        throw new Error("Error in block");
+    } 
+    catch (error) when (error.message.includes("block")) 
+    {
+        console.log("Caught an error in block:", error.message);
+    }
+};
+
+const obj2 = {
+    property1: callSomeFunctionWithErrors(),
+    property2: callSomeFunctionWithErrors() 
+}
 catch (error) when (error.message.includes("block")) 
 {
     console.log("Caught an error in block:", error.message);
