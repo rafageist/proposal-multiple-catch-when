@@ -4,9 +4,7 @@
 
 JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of code, not just `try` blocks, to have associated `catch` blocks, and also `catch` statement after any expression. Furthermore, each `catch block` and `catch expression` can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
 
-```txt
-This proposal retains the integrity of JavaScript's control flow while offering developers a more intuitive and streamlined way to handle errors, without introducing unnecessary complexity.
-```
+> This proposal retains the integrity of JavaScript's control flow while offering developers a more intuitive and streamlined way to handle errors, without introducing unnecessary complexity.
 
 ## Key Concepts
 
