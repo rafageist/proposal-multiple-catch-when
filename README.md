@@ -1,5 +1,51 @@
 # Universal and Flexible Error Handling in ECMAScript
 
+## Table of Contents
+
+- [Universal and Flexible Error Handling in ECMAScript](#universal-and-flexible-error-handling-in-ecmascript)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+    - [Key Concepts](#key-concepts)
+    - [Engagement](#engagement)
+    - [Benefits](#benefits)
+  - [The proposal](#the-proposal)
+    - [Proposed Syntax](#proposed-syntax)
+    - [Grammar](#grammar)
+    - [Static Semantics: Early Errors](#static-semantics-early-errors)
+    - [Runtime Semantics: CatchClauseEvaluation](#runtime-semantics-catchclauseevaluation)
+    - [Runtime Semantics: Block Evaluation](#runtime-semantics-block-evaluation)
+    - [Comparison with Existing Syntax](#comparison-with-existing-syntax)
+      - [Current](#current)
+      - [Proposed](#proposed)
+  - [Examples](#examples)
+    - [`try-catch` (the current specification)](#try-catch-the-current-specification)
+    - [`try-catch` with `when` clause](#try-catch-with-when-clause)
+    - [`anonymous-catch` (no `try` block)](#anonymous-catch-no-try-block)
+    - [`object literal-catch`](#object-literal-catch)
+    - [`if-catch`](#if-catch)
+    - [`if-catch` with `when` Clause](#if-catch-with-when-clause)
+    - [`for-catch`](#for-catch)
+    - [`while-catch`](#while-catch)
+    - [`function-catch`](#function-catch)
+    - [`catch-catch`](#catch-catch)
+    - [`class-catch`](#class-catch)
+    - [`switch-catch`](#switch-catch)
+    - [`do-catch`](#do-catch)
+    - [`finally-catch`](#finally-catch)
+    - [`try-catch-throw-catch`](#try-catch-throw-catch)
+    - [`try-cath` with `if-catch-when` inside](#try-cath-with-if-catch-when-inside)
+  - [Analysis](#analysis)
+    - [Alignment with Current Exception Handling](#alignment-with-current-exception-handling)
+    - [Importance of braces `{}`](#importance-of-braces-)
+    - [Importance of semi-colons](#importance-of-semi-colons)
+    - [Control flow integrity](#control-flow-integrity)
+    - [Avoiding redundant constructs](#avoiding-redundant-constructs)
+    - [A structural solution to a structural problem](#a-structural-solution-to-a-structural-problem)
+  - [Motivation and inspiration](#motivation-and-inspiration)
+  - [References](#references)
+  - [Author](#author)
+  - [License](#license)
+
 ## Introduction
 
 JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of code, not just `try` blocks, to have associated `catch` blocks. Furthermore, each `catch block` can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
@@ -12,14 +58,14 @@ JavaScript's `try-catch` structure is a fundamental tool for error handling, but
 
 This proposal expands JavaScript’s error handling capabilities by allowing any block of code to have its own `catch` block, with the option to conditionally execute those blocks using the `when` keyword. This enhancement provides developers with more control, clarity, and flexibility while maintaining compatibility with existing JavaScript syntax.
 
-## Key Concepts
+### Key Concepts
 
 1. **Universal `catch` blocks**: Any block of code, including functions, loops, and even other `catch` blocks, can have its own `catch` statement.
 2. **Nested `catch` blocks**: Since a `catch` block is just _another block of code_, it can also have its own `catch` to handle errors within error-handling logic.
 3. **Conditional `catch` with `when`**: The `when` clause allows for conditional execution of `catch` blocks, improving the readability and control of error handling.
 4. **Conditional catch body**: If the body of the `catch` block is missing, the error variable is still available in the same scope as the `catch` block, allowing for more precise error handling.
 
-## Engagement
+### Engagement
 
 JavaScript developers often encounter situations where they need to handle errors in specific ways based on the type of error or other conditions. The current `try-catch` structure can be limiting in these scenarios, leading to complex nested conditions or multiple `try-catch` blocks. By allowing `catch` blocks to be attached to any block of code, developers can handle errors more precisely and maintain a cleaner code structure.
 
@@ -41,13 +87,16 @@ console.log(a);
 if (e) console.log(err);
 ```
 
-## Motivation
+### Benefits
 
-### Improving JavaScript’s Error Handling
+- **Precision**: Handle specific error types or conditions directly.
+- **Clarity**: The `when` clause makes the error-handling logic clear and concise.
+- **Simplicity**: Reduces the need for complex nested conditions within `catch` blocks.
+- **Expressiveness**: Offers a more powerful way to handle different error scenarios.
 
-Currently, JavaScript lacks the ability to type or conditionally handle errors directly in `catch` blocks, resulting in complex and less readable code. This proposal introduces a more precise and clear way to handle errors, inspired by similar features in languages ​​such as C#.
+## The proposal
 
-## Proposed Syntax
+### Proposed Syntax
 
 The proposed syntax allows for `catch` blocks to be attached to any code block and for those blocks to conditionally execute based on the `when` clause:
 
@@ -91,7 +140,7 @@ catch (e);
 ...
 ```
 
-## Grammar
+### Grammar
 
 The proposed changes to the ECMAScript grammar are as follows:
 
@@ -212,9 +261,9 @@ Block : { StatementList } Catch[?Yield, ?Await, ?Return]? Finally[?Yield, ?Await
    - b. Otherwise, proceed with the value from the previous step.
 5. Return `? C` or `B`, as appropriate.
 
-## Comparison with Existing Syntax
+### Comparison with Existing Syntax
 
-### Current
+#### Current
 
 The current `try-catch` syntax is limited to the `try` block, which can be followed by one or more `catch` blocks and an optional `finally` block. This structure is restrictive and does not allow for `catch` blocks to be attached to other blocks of code.
 
@@ -234,7 +283,7 @@ catch (error)
 }
 ```
 
-### Proposed
+#### Proposed
 
 The proposed syntax allows for `catch` blocks to be attached to any block of code, not just `try` blocks. This flexibility enables developers to handle errors more precisely and conditionally, improving the readability and control of error handling.
 
@@ -250,7 +299,7 @@ catch (error) /* optional */ when (error.message.includes("block"))
 }
 ```
 
-## More examples
+## Examples
 
 ### `try-catch` (the current specification)
 
@@ -403,7 +452,7 @@ Nested `catch` blocks can handle errors within error-handling logic.
 }
 ```
 
-## `class-catch`
+### `class-catch`
 
 This example demonstrates how a `catch` block can be attached to a class definition to handle errors during the execution of any class method.
 
@@ -427,7 +476,7 @@ class MyClass {
 }
 ```
 
-## `switch-catch`
+### `switch-catch`
 
 Catch exceptions thrown in any `case` of a `switch` statement.
 
@@ -442,7 +491,7 @@ switch (value) {
 }
 ```
 
-## `do-catch`
+### `do-catch`
 
 Catch exceptions must be before the `while` statement.
 
@@ -454,7 +503,7 @@ do {
 } while (false);
 ```
 
-## `finally-catch`
+### `finally-catch`
 
 Catch exceptions thrown in the `finally` block.
 
@@ -471,7 +520,7 @@ try {
 }
 ```
 
-## `try-catch-throw-catch`
+### `try-catch-throw-catch`
 
 Catch exceptions thrown in the `catch` block.
 
@@ -486,7 +535,7 @@ try {
 }
 ```
 
-## `try-cath` with `if-catch-when` inside
+### `try-cath` with `if-catch-when` inside
 
 Combine `try-catch` with `if-catch-when` inside.
 
@@ -509,24 +558,17 @@ try {
 }
 ```
 
-## Alignment with Current Exception Handling
+## Analysis
+
+### Alignment with Current Exception Handling
 
 In JavaScript, when an exception is thrown, it is caught by the first catch block found in the hierarchy. This behavior remains consistent with the proposed changes. If a block does not catch the exception (either because it lacks a catch block or because the when condition evaluates to false), the exception will propagate up the call stack, where it can be caught by a higher-level catch block.
 
 This ensures that the traditional flow of exception handling is preserved. The flexibility introduced by allowing any block to have a catch block (and potentially a `when` condition) simply extends this existing mechanism, giving developers more control over how and where exceptions are handled, without altering the fundamental principles of exception propagation.
 
-## Benefits
-
-- **Precision**: Handle specific error types or conditions directly.
-- **Clarity**: The `when` clause makes the error-handling logic clear and concise.
-- **Simplicity**: Reduces the need for complex nested conditions within `catch` blocks.
-- **Expressiveness**: Offers a more powerful way to handle different error scenarios.
-
-## Why Braces `{}` Matter
+### Importance of braces `{}`
 
 While some proposals seek to move away from the traditional `try-catch` structure, often resorting to `if` statements or introducing new operators, this proposal embraces and expands upon the existing use of braces `{}` to maintain consistency with the current JavaScript syntax and control flow structures.
-
-### Importance of braces
 
 Braces `{}` are a fundamental part of JavaScript's syntax, serving as the primary means to define code blocks. By leveraging this familiar structure, the proposal ensures that developers can manage errors within the same framework they use for other control flows like `if`, `for`, and `while` loops.
 
@@ -564,9 +606,9 @@ Error handling is inherently about structuring your code to handle the unexpecte
 
 This proposal advocates for an evolution of JavaScript's error-handling capabilities that respects and enhances the language's foundational structures, ensuring that developers can write cleaner, more maintainable code without sacrificing familiarity or simplicity.
 
-## Inspiration
+## Motivation and inspiration
 
-This proposal was inspired by the need to improve JavaScript's error-handling mechanisms, drawing from various languages and systems that have implemented similar concepts:
+Currently, JavaScript lacks the ability to type or conditionally handle errors directly in `catch` blocks, resulting in complex and less readable code. This proposal introduces a more precise and clear way to handle errors, inspired by similar features in languages ​​such as C#, F#, Scala, PL/pgSQL, Ruby, BASIC, Go, and Rust, as well as real-world scenarios where more granular error handling is needed.
 
 1. **C# and F# `when` Clause**: Both C# and F# provide a `when` clause in their `catch` blocks, allowing developers to handle exceptions based on specific conditions. This inspired the idea of bringing a similar conditional mechanism to JavaScript.
 
@@ -645,7 +687,7 @@ This proposal was inspired by the need to improve JavaScript's error-handling me
     }
     ```
 
-6. **Real-World Scenarios**: The need for more granular control over error handling in complex JavaScript applications highlighted the limitations of the current `try-catch` structure and motivated the development of this more flexible approach.
+7. **Real-World Scenarios**: The need for more granular control over error handling in complex JavaScript applications highlighted the limitations of the current `try-catch` structure and motivated the development of this more flexible approach.
 
 By synthesizing these ideas and experiences from various languages and systems, this proposal aims to provide a more powerful and flexible approach to error handling in JavaScript, while maintaining the simplicity and dynamism that the language is known for.
 
