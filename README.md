@@ -2,21 +2,24 @@
 
 ## Introduction
 
-JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of code, not just `try` blocks, to have associated `catch` blocks, and also `catch` statement after any expression. Furthermore, each `catch block` and `catch expression` can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
+JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of code, not just `try` blocks, to have associated `catch` blocks. Furthermore, each `catch block` can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
 
 > This proposal retains the integrity of JavaScript's control flow while offering developers a more intuitive and streamlined way to handle errors, without introducing unnecessary complexity.
 
+```javascript
+{ /* ...*/ } catch (e) when (true || false) { /* ... */}
+```
+
+This proposal expands JavaScript’s error handling capabilities by allowing any block of code to have its own `catch` block, with the option to conditionally execute those blocks using the `when` keyword. This enhancement provides developers with more control, clarity, and flexibility while maintaining compatibility with existing JavaScript syntax.
+
 ## Key Concepts
 
-1. **Universal `catch` Blocks**: Any block of code, including functions, loops, and even other `catch` blocks, can have its own `catch` statement.
-2. **Nested `catch` Blocks**: Since a `catch` block is just another block of code, it can also have its own `catch` to handle errors within error-handling logic.
-3. **Expressions with `catch`**: Any expression that throws an error can be followed by a `catch expression`  to handle that error.
-4. **Conditional `catch` with `when`**: The `when` clause allows for conditional execution of `catch` blocks, improving the readability and control of error handling.
-5. **Conditional catch block allow error variable in the same scope**: The error variable is available in the same scope as the catch block, allowing for more precise error handling.
+1. **Universal `catch` blocks**: Any block of code, including functions, loops, and even other `catch` blocks, can have its own `catch` statement.
+2. **Nested `catch` blocks**: Since a `catch` block is just _another block of code_, it can also have its own `catch` to handle errors within error-handling logic.
+3. **Conditional `catch` with `when`**: The `when` clause allows for conditional execution of `catch` blocks, improving the readability and control of error handling.
+4. **Conditional catch body**: If the body of the `catch` block is missing, the error variable is still available in the same scope as the `catch` block, allowing for more precise error handling.
 
-## Motivation
-
-### Engagement
+## Engagement
 
 JavaScript developers often encounter situations where they need to handle errors in specific ways based on the type of error or other conditions. The current `try-catch` structure can be limiting in these scenarios, leading to complex nested conditions or multiple `try-catch` blocks. By allowing `catch` blocks to be attached to any block of code, developers can handle errors more precisely and maintain a cleaner code structure.
 
@@ -26,18 +29,29 @@ Language as Go and Rust, allow to catch errors inline, but `catch` is for contro
 { var a = 1 } catch (e);
 
 console.log(a);
-console.log(e);
+if (e) console.log(e);
 ```
+
+In the previous example you are seeing the combination of an `anonymous block` with a `catch without a body`. If you want to do the same in actual JavaScript, you will need an additional block and variable:
+
+```js
+try { var a = 1 } catch (e) { var err = e; }
+
+console.log(a);
+if (e) console.log(err);
+```
+
+## Motivation
 
 ### Improving JavaScript’s Error Handling
 
-Currently, JavaScript lacks the ability to type or conditionally handle errors directly in `catch` blocks, leading to complex and less readable code. This proposal introduces a way to manage errors more precisely and clearly, inspired by similar features in languages like C#.
+Currently, JavaScript lacks the ability to type or conditionally handle errors directly in `catch` blocks, resulting in complex and less readable code. This proposal introduces a more precise and clear way to handle errors, inspired by similar features in languages ​​such as C#.
 
 ## Proposed Syntax
 
 The proposed syntax allows for `catch` blocks to be attached to any code block and for those blocks to conditionally execute based on the `when` clause:
 
-```txt
+```javascript
 /* 
 any block of code: try, anonymous, functions, 
 if, do, class, catch, finally, switch, ... 
@@ -47,13 +61,13 @@ if, do, class, catch, finally, switch, ...
     // Code that may throw an error
     // ...
 } 
-catch (<var>) when (<boolean expression) 
+catch (e) when (false || true) 
 {
     // Error-handling logic
     // ...
     // catch is also a block!
 }
-catch (<var>) when (<boolean expression) 
+catch (e) when (false || true) 
 {
     // Error-handling logic
     // ...
@@ -64,20 +78,22 @@ finally
 
     // ... but finally is also a block!
 } 
-catch (<var>) when (<boolean expression) 
+catch (e) when (false || true) 
 {
     // Error-handling logic
     // ...
 }
+catch (e);
 
-catch (<var>);
+{/* ... */ } catch when (false || true);
 
-catch (<var>) when (<boolean expression);
-
+{ /* ... */} catch;
 ...
 ```
 
 ## Grammar
+
+The proposed changes to the ECMAScript grammar are as follows:
 
 ```grammar
 14.2 Block 
@@ -236,7 +252,7 @@ catch (error) /* optional */ when (error.message.includes("block"))
 }
 ```
 
-## Examples
+## More examples
 
 ### `try-catch` (the current specification)
 
@@ -497,9 +513,9 @@ try {
 
 ## Alignment with Current Exception Handling
 
-In JavaScript, when an exception is thrown, it is captured by the first catch block encountered in the hierarchy. This behavior remains consistent with the proposed changes. If a block does not catch the exception—either because it lacks a catch block or because the when condition evaluates to false—the exception will propagate up the call stack, where it can be caught by a higher-level catch block.
+In JavaScript, when an exception is thrown, it is caught by the first catch block found in the hierarchy. This behavior remains consistent with the proposed changes. If a block does not catch the exception (either because it lacks a catch block or because the when condition evaluates to false), the exception will propagate up the call stack, where it can be caught by a higher-level catch block.
 
-This ensures that the traditional flow of exception handling is preserved. The flexibility introduced by allowing any block to have a catch (and potentially a when condition) simply extends this existing mechanism, giving developers more control over how and where exceptions are handled, without altering the fundamental principles of exception propagation.
+This ensures that the traditional flow of exception handling is preserved. The flexibility introduced by allowing any block to have a catch block (and potentially a `when` condition) simply extends this existing mechanism, giving developers more control over how and where exceptions are handled, without altering the fundamental principles of exception propagation.
 
 ## Benefits
 
@@ -512,27 +528,25 @@ This ensures that the traditional flow of exception handling is preserved. The f
 
 While some proposals seek to move away from the traditional `try-catch` structure, often resorting to `if` statements or introducing new operators, this proposal embraces and expands upon the existing use of braces `{}` to maintain consistency with the current JavaScript syntax and control flow structures.
 
-### Importance of Braces
+### Importance of braces
 
 Braces `{}` are a fundamental part of JavaScript's syntax, serving as the primary means to define code blocks. By leveraging this familiar structure, the proposal ensures that developers can manage errors within the same framework they use for other control flows like `if`, `for`, and `while` loops.
 
-### Control Flow Integrity
+### Control flow integrity
 
 At its core, error handling is about controlling the flow of execution in the presence of unexpected conditions. By expanding the capabilities of blocks with optional `catch` and `finally` clauses, this proposal provides a powerful yet intuitive way to manage errors without introducing new or unfamiliar syntax. The focus remains on enhancing existing structures, ensuring that the language remains coherent and that the learning curve for developers is minimal.
 
-### Avoiding Redundant Constructs
+### Avoiding redundant constructs
 
 Moving away from `try-catch` often results in the use of `if` statements or other control structures that, while functional, can lead to redundant or less expressive code. This proposal addresses error handling in a more integrated manner, allowing developers to manage exceptions within the same block structure that controls their program's logic.
 
-### A Structured Solution for a Structured Problem
+### A structural solution to a structural problem
 
 Error handling is inherently about structuring your code to handle the unexpected. This proposal keeps the focus on structure by using control flow blocks, rather than introducing operators or new constructs that might disrupt the logical flow of code. By sticking with braces, we ensure that error handling remains a natural extension of the language's existing syntax and philosophy.
 
+> Storing a value in memory is not the same as telling the interpreter what the next block of code to execute is.
+
 This proposal advocates for an evolution of JavaScript's error-handling capabilities that respects and enhances the language's foundational structures, ensuring that developers can write cleaner, more maintainable code without sacrificing familiarity or simplicity.
-
-## Conclusion
-
-This proposal expands JavaScript’s error handling capabilities by allowing any block of code to have its own `catch` block, with the option to conditionally execute those blocks using the `when` keyword. This enhancement provides developers with more control, clarity, and flexibility while maintaining compatibility with existing JavaScript syntax.
 
 ## Inspiration
 
@@ -540,13 +554,80 @@ This proposal was inspired by the need to improve JavaScript's error-handling me
 
 1. **C# and F# `when` Clause**: Both C# and F# provide a `when` clause in their `catch` blocks, allowing developers to handle exceptions based on specific conditions. This inspired the idea of bringing a similar conditional mechanism to JavaScript.
 
+    ```csharp
+    try
+    {
+        // Code that may throw an error
+    }
+    catch (Exception ex) when (ex.Message.Contains("block"))
+    {
+        Console.WriteLine("Caught an error in block: " + ex.Message);
+    }
+    ```
+
 2. **Scala's Pattern Matching in `catch`**: Scala's ability to use pattern matching within `catch` blocks, combined with conditional logic, influenced the design of conditional `catch` blocks with `when` in this proposal.
+
+    ```scala
+    try {
+        // Code that may throw an error
+    } catch {
+        case ex: Exception if ex.getMessage.contains("block") =>
+            println(s"Caught an error in block: ${ex.getMessage}")
+    }
+    ```
 
 3. **PL/pgSQL's `EXCEPTION` Handling**: In PL/pgSQL, the EXCEPTION section within functions allows for specific error handling based on the type of exception, providing a structured approach to managing errors in procedural code. This inspired the idea of enhancing JavaScript's error handling within blocks and functions.
 
+    ```sql
+    BEGIN
+        -- Code that may throw an error
+    EXCEPTION
+        WHEN OTHERS THEN
+            -- Error-handling logic
+    END;
+    ```
+
 4. **BASIC's `On Error` Statement**: The `On Error` mechanism in BASIC languages like Visual Basic offers a way to direct the flow of control when an error occurs, similar to the concept of catch blocks. This inspired the proposal to allow more flexible and conditional error handling in JavaScript.
 
+    ```basic
+    On Error Goto ErrorHandler
+    ' Code that may throw an error
+    Exit Sub
+    ErrorHandler:
+    ' Error-handling logic
+    ```
+
 5. **Ruby's `rescue` with Conditions**: Ruby's elegant error-handling using `rescue`, which can include conditional logic within the block, inspired the flexibility and readability goals of this proposal.
+
+    ```ruby
+    begin
+        # Code that may throw an error
+    rescue => e
+        puts "Caught an error: #{e.message}" if e.message.include?("block")
+    end
+    ```
+
+6. **Go an Rust**: Go and Rust allow to catch errors inline, but `catch` is for control flow, and is important keep this principle. To maintain the control flow, the `catch` block in this proposal is optional, and the error variable is available in the same scope as the catch block.
+
+    ```go
+    // Go
+    if num, err := strconv.Atoi("123a"); err != nil {
+        fmt.Println("Error:", err)
+    } else {
+        fmt.Println("Number:", num)
+    }
+    ```
+
+    ```rust
+    // Rust
+    let num = "123a".parse::<i32>();
+
+    if let Err(e) = num {
+        println!("Error: {}", e);
+    } else {
+        println!("Number: {}", num.unwrap());
+    }
+    ```
 
 6. **Real-World Scenarios**: The need for more granular control over error handling in complex JavaScript applications highlighted the limitations of the current `try-catch` structure and motivated the development of this more flexible approach.
 
@@ -554,21 +635,43 @@ By synthesizing these ideas and experiences from various languages and systems, 
 
 ## References
 
-1. Crockford, Douglas. *JavaScript: The Good Parts*. O'Reilly Media, 2008. ISBN: 978-0596517748.
+1. Crockford, Douglas. _JavaScript: The Good Parts_. O'Reilly Media, 2008. ISBN: 978-0596517748.
 
-2. Simpson, Kyle. *You Don't Know JS: Scope & Closures*. O'Reilly Media, 2014. ISBN: 978-1449335588.
+2. Simpson, Kyle. _You Don't Know JS: Scope & Closures_. O'Reilly Media, 2014. ISBN: 978-1449335588.
 
-3. Hunt, Andrew, and David Thomas. *The Pragmatic Programmer: Your Journey to Mastery*. Addison-Wesley Professional, 1999. ISBN: 978-0201616224.
+3. Hunt, Andrew, and David Thomas. _The Pragmatic Programmer: Your Journey to Mastery_. Addison-Wesley Professional, 1999. ISBN: 978-0201616224.
 
-4. Scott, Michael L. *Programming Language Pragmatics*. Morgan Kaufmann, 2009. ISBN: 978-0123745149.
+4. Scott, Michael L. _Programming Language Pragmatics_. Morgan Kaufmann, 2009. ISBN: 978-0123745149.
 
-5. McConnell, Steve. *Code Complete: A Practical Handbook of Software Construction*. Microsoft Press, 2004. ISBN: 978-0735619678.
+5. McConnell, Steve. _Code Complete: A Practical Handbook of Software Construction_. Microsoft Press, 2004. ISBN: 978-0735619678.
+
+6. Flanagan, David. _JavaScript: The Definitive Guide_. O'Reilly Media, 2020. ISBN: 978-1491952023.
+
+7. W3Schools. "JavaScript Errors - Throw and Try to Catch". [https://www.w3schools.com/js/js_errors.asp](https://www.w3schools.com/js/js_errors.asp)
+
+8. Mozilla Developer Network. "Error". [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)
+
+9. Microsoft Docs. "try-catch (C# Reference)". [https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/try-catch](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/try-catch)
+
+10. Scala Documentation. "Functional Error Handling". [https://docs.scala-lang.org/scala3/book/fp-functional-error-handling.html](https://docs.scala-lang.org/scala3/book/fp-functional-error-handling.html)
+
+11. PostgreSQL Documentation. "PL/pgSQL - Error Handling". [https://www.postgresql.org/docs/13/plpgsql-control-structures.html#PLPGSQL-ERROR-TRAPPING](https://www.postgresql.org/docs/13/plpgsql-control-structures.html#PLPGSQL-ERROR-TRAPPING)
+
+12. Ruby Documentation. "Exceptions". [https://ruby-doc.org/core-3.0.2/doc/syntax/exceptions_rdoc.html](https://ruby-doc.org/core-3.0.2/doc/syntax/exceptions_rdoc.html)
+
+13. BASIC Programming Language. "On Error Statement". [https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/on-error-statement](https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/on-error-statement)
+
+14. The Go Programming Language. "Error Handling". [https://golang.org/doc/effective_go#errors](https://golang.org/doc/effective_go#errors)
+
+15. The Rust Programming Language. "Error Handling". [https://doc.rust-lang.org/book/ch09-00-error-handling.html](https://doc.rust-lang.org/book/ch09-00-error-handling.html)
+
+16. JavaScript Standard ECMA-262. [https://tc39.es/ecma262](https://tc39.es/ecma262/)
 
 ## Author
 
 Rafael Rodríguez Ramírez
 
-rafageist@divengine.com
+<rafageist@divengine.com>
 
 [rafageist.com](https://rafageist.com)
 
