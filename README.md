@@ -195,8 +195,6 @@ Catch: catch
 3. Simply continue execution without binding any error or evaluating a block.
 4. Proceed to the next statement.
 
-
-
 ### Runtime Semantics: Block Evaluation
 
 ```plaintext
@@ -531,6 +529,24 @@ While some proposals seek to move away from the traditional `try-catch` structur
 ### Importance of braces
 
 Braces `{}` are a fundamental part of JavaScript's syntax, serving as the primary means to define code blocks. By leveraging this familiar structure, the proposal ensures that developers can manage errors within the same framework they use for other control flows like `if`, `for`, and `while` loops.
+
+### Importance of semi-colons
+
+Semi-colons `;` are also a fundamental part of JavaScript's syntax, serving as the primary means to separate statements. In this proposal, is recommended to use semi-colons to separate statements, but is not mandatory. For example:
+
+```js
+{ throw new Error("Error in block") } catch
+
+(1 + 1)
+```
+
+The previous code is valid, but is recommended to use semi-colons to separate statements, because the interpreter doesn't know if `( 1 + 1)` is part of the `catch` block or not. Then, the following code is recommended:
+
+```js
+{ throw new Error("Error in block") } catch; // <-- semicolon
+
+(1 + 1)
+```
 
 ### Control flow integrity
 
