@@ -47,7 +47,7 @@
 
 ## Introduction
 
-JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of code, not just `try` blocks, to have associated `catch` blocks. Furthermore, each `catch block` can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
+JavaScript's `try-catch` structure is a fundamental tool for error handling, but it can be enhanced for greater flexibility and clarity. This proposal introduces the concept of allowing any block of statements, not just `try` blocks, to have associated `catch` blocks. Furthermore, each `catch block` can have a `when` clause to conditionally handle specific errors, providing a more controlled and expressive approach to managing exceptions.
 
 >[!IMPORTANT]
 >This proposal retains the integrity of JavaScript's control flow while offering developers a more intuitive and streamlined way to handle errors, without introducing unnecessary complexity.
@@ -56,18 +56,18 @@ JavaScript's `try-catch` structure is a fundamental tool for error handling, but
 { /* ...*/ } catch (e) when (true || false) { /* ... */}
 ```
 
-This proposal expands JavaScript’s error handling capabilities by allowing any block of code to have its own `catch` block, with the option to conditionally execute those blocks using the `when` keyword. This enhancement provides developers with more control, clarity, and flexibility while maintaining compatibility with existing JavaScript syntax.
+This proposal expands JavaScript’s error handling capabilities by allowing any block of statements to have its own `catch` block, with the option to conditionally execute those blocks using the `when` keyword. This enhancement provides developers with more control, clarity, and flexibility while maintaining compatibility with existing JavaScript syntax.
 
 ### Key Concepts
 
-1. **Universal `catch` blocks**: Any block of code, including functions, loops, and even other `catch` blocks, can have its own `catch` statement.
+1. **Universal `catch` blocks**: Any block of statements, including functions, loops, and even other `catch` blocks, can have its own `catch` statement.
 2. **Nested `catch` blocks**: Since a `catch` block is just _another block of code_, it can also have its own `catch` to handle errors within error-handling logic.
 3. **Conditional `catch` with `when`**: The `when` clause allows for conditional execution of `catch` blocks, improving the readability and control of error handling.
 4. **Conditional catch body**: If the body of the `catch` block is missing, the error variable is still available in the same scope as the `catch` block, allowing for more precise error handling.
 
 ### Engagement
 
-JavaScript developers often encounter situations where they need to handle errors in specific ways based on the type of error or other conditions. The current `try-catch` structure can be limiting in these scenarios, leading to complex nested conditions or multiple `try-catch` blocks. By allowing `catch` blocks to be attached to any block of code, developers can handle errors more precisely and maintain a cleaner code structure.
+JavaScript developers often encounter situations where they need to handle errors in specific ways based on the type of error or other conditions. The current `try-catch` structure can be limiting in these scenarios, leading to complex nested conditions or multiple `try-catch` blocks. By allowing `catch` blocks to be attached to any block of statements, developers can handle errors more precisely and maintain a cleaner code structure.
 
 Language as Go and Rust, allow to catch errors inline, but `catch` is for control flow, and is important keep this principle. To maintain the control flow, the `catch` block in this proposal is optional, and the error variable is available in the same scope as the catch block. With this proposal the following code is possible:
 
@@ -102,7 +102,7 @@ The proposed syntax allows for `catch` blocks to be attached to any code block a
 
 ```javascript
 /* 
-any block of code: try, anonymous, functions, 
+any block of statements: try, anonymous, functions, 
 if, do, catch, finally, ... 
 */ 
 
@@ -285,10 +285,10 @@ catch (error)
 
 #### Proposed
 
-The proposed syntax allows for `catch` blocks to be attached to any block of code, not just `try` blocks. This flexibility enables developers to handle errors more precisely and conditionally, improving the readability and control of error handling.
+The proposed syntax allows for `catch` blocks to be attached to any block of statements, not just `try` blocks. This flexibility enables developers to handle errors more precisely and conditionally, improving the readability and control of error handling.
 
 ```js
-/* any block of code */ 
+/* any block of statements */ 
 {
     // Code that may throw an error
     throw new Error("Error in block");
@@ -418,7 +418,7 @@ function fetchData() {
 Nested `catch` blocks can handle errors within error-handling logic.
 
 ```js
-/* ... any block of code ... */ {
+/* ... any block of statements ... */ {
     throw new Error("Error in block");
 } catch (error) when (error.message.includes("block")) {
     console.log("Caught an error in block:", error.message);
@@ -652,7 +652,7 @@ Moving away from `try-catch` often results in the use of `if` statements or othe
 Error handling is inherently about structuring your code to handle the unexpected. This proposal keeps the focus on structure by using control flow blocks, rather than introducing operators or new constructs that might disrupt the logical flow of code. By sticking with braces, we ensure that error handling remains a natural extension of the language's existing syntax and philosophy.
 
 >[!IMPORTANT]
-> Storing a value in memory is not the same as telling the interpreter what the next block of code to execute is.
+> Storing a value in memory is not the same as telling the interpreter what the next block of statements to execute is.
 
 This proposal advocates for an evolution of JavaScript's error-handling capabilities that respects and enhances the language's foundational structures, ensuring that developers can write cleaner, more maintainable code without sacrificing familiarity or simplicity.
 
