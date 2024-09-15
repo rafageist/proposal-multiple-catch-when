@@ -28,12 +28,12 @@
     - [`while-catch`](#while-catch)
     - [`function-catch`](#function-catch)
     - [`catch-catch`](#catch-catch)
-    - [`class-catch`](#class-catch)
     - [`switch-catch`](#switch-catch)
     - [`do-catch`](#do-catch)
     - [`finally-catch`](#finally-catch)
     - [`try-catch-throw-catch`](#try-catch-throw-catch)
     - [`try-cath` with `if-catch-when` inside](#try-cath-with-if-catch-when-inside)
+  - [List of combinations](#list-of-combinations)
   - [Analysis](#analysis)
     - [Alignment with Current Exception Handling](#alignment-with-current-exception-handling)
     - [Importance of braces `{}`](#importance-of-braces-)
@@ -104,7 +104,7 @@ The proposed syntax allows for `catch` blocks to be attached to any code block a
 ```javascript
 /* 
 any block of code: try, anonymous, functions, 
-if, do, class, catch, finally, switch, ... 
+if, do, catch, finally, switch, ... 
 */ 
 
 {
@@ -151,7 +151,7 @@ The proposed changes to the ECMAScript grammar are as follows:
 Syntax 
 
     Block[Yield, Await, Return] :
-        { StatementList[?Yield, ?Await, ?Return] } Catch[?Yield, ?Await, ?Return]? Finally[?Yield, ?Await, ?Return]?
+        { StatementList[?Yield, ?Await, ?Return] opt } Catch[?Yield, ?Await, ?Return]? Finally[?Yield, ?Await, ?Return]?
 
     Catch[Yield, Await, Return] :
         catch ( CatchParameter[?Yield, ?Await] ) when ( Expression ) Block[?Yield, ?Await, ?Return]
@@ -453,30 +453,6 @@ Nested `catch` blocks can handle errors within error-handling logic.
 }
 ```
 
-### `class-catch`
-
-This example demonstrates how a `catch` block can be attached to a class definition to handle errors during the execution of any class method.
-
-```js
-class MyClass {
-    constructor() {
-        throw new Error("Error in block");
-    } 
-
-    method() {
-        throw new Error("Error in block");
-    } catch (error) when (error.message.includes("block")) {
-        console.log("Caught an error in block:", error.message);
-    }
-
-    static staticMethod() {
-        throw new Error("Error in block");
-    }
-} catch (error) when (error.message.includes("block")) {
-    console.log("Caught an error in block:", error.message);
-}
-```
-
 ### `switch-catch`
 
 Catch exceptions thrown in any `case` of a `switch` statement.
@@ -558,6 +534,115 @@ try {
     console.log("Caught an error in try block:", error.message);
 }
 ```
+
+## List of combinations
+
+```js
+
+// RO = risky operation
+// BE = boolean expression
+
+{ /* RO */ } catch;
+{ /* RO */ } catch (e);
+{ /* RO */ } catch (e) {  /* ... */  }
+{ /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
+{ /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
+{ /* RO */ } catch when ( /* BE */ );
+{ /* RO */ } catch when ( /* BE */ ) { /* ... */} /* ... */
+{ /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } /* ... */
+{ /* RO */ } catch (e) when ( /* BE */ );
+{ /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  }
+{ /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } catch /* ... */
+{ /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ }
+{ /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ } catch /* ... */
+/* ... */
+
+if ( /* BE */ ) { /* RO */ } catch;
+if ( /* BE */ ) { /* RO */ } catch (e);
+if ( /* BE */ ) { /* RO */ } catch (e) {  /* ... */  }
+if ( /* BE */ ) { /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
+if ( /* BE */ ) { /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
+if ( /* BE */ ) { /* RO */ } catch when ( /* BE */ );
+if ( /* BE */ ) { /* RO */ } catch when ( /* BE */ ) { /* ... */} /* ... */
+if ( /* BE */ ) { /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } /* ... */
+if ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ );
+if ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  }
+if ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } catch /* ... */
+if ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ }
+if ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ } catch /* ... */
+if ( /* BE */ ) { /* RO */ } else { /* RO */ } catch;
+if ( /* BE */ ) { /* RO */ } else { /* RO */ } catch (e);
+if ( /* BE */ ) { /* RO */ } else { /* RO */ } catch (e) {  /* ... */  }
+if ( /* BE */ ) { /* RO */ } else { /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
+if ( /* BE */ ) { /* RO */ } else { /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
+if ( /* BE */ ) { /* RO */ } else { /* RO */ } catch when ( /* BE */ );
+/* ... */
+
+for ( /* RO */ ) { /* RO */ } catch;
+for ( /* RO */ ) { /* RO */ } catch (e);
+for ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  }
+for ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
+for ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
+for ( /* RO */ ) { /* RO */ } catch when ( /* BE */ );
+for ( /* RO */ ) { /* RO */ } catch when ( /* BE */ ) { /* ... */} /* ... */
+for ( /* RO */ ) { /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } /* ... */
+for ( /* RO */ ) { /* RO */ } catch (e) when ( /* BE */ );
+for ( /* RO */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  }
+for ( /* RO */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } catch /* ... */
+for ( /* RO */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ }
+for ( /* RO */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ } catch /* ... */
+/* ... */
+
+while ( /* BE */ ) { /* RO */ } catch;
+while ( /* BE */ ) { /* RO */ } catch (e);
+while ( /* BE */ ) { /* RO */ } catch (e) {  /* ... */  }
+while ( /* BE */ ) { /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
+while ( /* BE */ ) { /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
+while ( /* BE */ ) { /* RO */ } catch when ( /* BE */ );
+while ( /* BE */ ) { /* RO */ } catch when ( /* BE */ ) { /* ... */} /* ... */
+while ( /* BE */ ) { /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } /* ... */
+while ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ );
+while ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  }
+while ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } catch /* ... */
+while ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ }
+while ( /* BE */ ) { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ } catch /* ... */
+/* ... */
+
+do { /* RO */ } catch (e) while ( /* BE */ );
+do { /* RO */ } catch (e) {  /* ... */  } while ( /* BE */ )
+do { /* RO */ } catch (e)  when ( /* BE */) {  /* ... */  } catch (e) {  /* ... */  } while ( /* BE */ ) /* ... */
+/* ... */
+
+
+switch ( /* RO */ ) { /* RO */ } catch;
+switch ( /* RO */ ) { /* RO */ } catch (e);
+switch ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  }
+switch ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
+switch ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
+switch ( /* RO */ ) { case 1: { /* RO */ } catch; } when ( /* BE */ );
+switch ( /* RO */ ) { case 1: { /* RO */ } catch when ( /* BE */ ) { /* ... */} }/* ... */
+switch ( /* RO */ ) { case 1: { /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } } /* ... */
+/* ... */
+
+function f() { /* RO */ } catch;
+function f() { /* RO */ } catch (e);
+function f() { /* RO */ } catch (e) {  /* ... */  }
+function f() { /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
+function f() { /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
+function f() { /* RO */ } catch when ( /* BE */ );
+function f() { /* RO */ } catch when ( /* BE */ ) { /* ... */} /* ... */
+function f() { /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } /* ... */
+function f() { /* RO */ } catch (e) when ( /* BE */ );
+function f() { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  }
+function f() { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } catch /* ... */
+function f() { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ }
+function f() { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ } catch /* ... */
+/* ... */
+
+
+```
+
+
 
 ## Analysis
 
