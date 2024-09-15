@@ -21,18 +21,17 @@
     - [`try-catch` (the current specification)](#try-catch-the-current-specification)
     - [`try-catch` with `when` clause](#try-catch-with-when-clause)
     - [`anonymous-catch` (no `try` block)](#anonymous-catch-no-try-block)
-    - [`object literal-catch`](#object-literal-catch)
     - [`if-catch`](#if-catch)
     - [`if-catch` with `when` Clause](#if-catch-with-when-clause)
     - [`for-catch`](#for-catch)
     - [`while-catch`](#while-catch)
     - [`function-catch`](#function-catch)
     - [`catch-catch`](#catch-catch)
-    - [`switch-catch`](#switch-catch)
     - [`do-catch`](#do-catch)
     - [`finally-catch`](#finally-catch)
     - [`try-catch-throw-catch`](#try-catch-throw-catch)
     - [`try-cath` with `if-catch-when` inside](#try-cath-with-if-catch-when-inside)
+    - [`case-body-catch`](#case-body-catch)
   - [List of combinations](#list-of-combinations)
   - [Analysis](#analysis)
     - [Alignment with Current Exception Handling](#alignment-with-current-exception-handling)
@@ -104,7 +103,7 @@ The proposed syntax allows for `catch` blocks to be attached to any code block a
 ```javascript
 /* 
 any block of code: try, anonymous, functions, 
-if, do, catch, finally, switch, ... 
+if, do, catch, finally, ... 
 */ 
 
 {
@@ -352,31 +351,6 @@ catch (error) when (error.message.includes("block"))
 }
 ```
 
-### `object literal-catch`
-
-No `try` block is required to have a `catch` block inside an object literal.
-
-```js
-const obj = {
-    method() {
-        throw new Error("Error in block");
-    } 
-    catch (error) when (error.message.includes("block")) 
-    {
-        console.log("Caught an error in block:", error.message);
-    }
-};
-
-const obj2 = {
-    property1: callSomeFunctionWithErrors(),
-    property2: callSomeFunctionWithErrors() 
-}
-catch (error) when (error.message.includes("block")) 
-{
-    console.log("Caught an error in block:", error.message);
-}
-```
-
 ### `if-catch`
 
 No `try` block is required to have a `catch` block inside an `if` statement.
@@ -453,21 +427,6 @@ Nested `catch` blocks can handle errors within error-handling logic.
 }
 ```
 
-### `switch-catch`
-
-Catch exceptions thrown in any `case` of a `switch` statement.
-
-```js
-switch (value) {
-    case 1:
-        throw new Error("Error in block 1");
-    case 2:
-        throw new Error("Error in block 2");
-} catch (error) when (error.message.includes("block 1")) {
-    console.log("Caught an error in block 1:", error.message);
-}
-```
-
 ### `do-catch`
 
 Catch exceptions must be before the `while` statement.
@@ -532,6 +491,20 @@ try {
 
 } catch (error) {
     console.log("Caught an error in try block:", error.message);
+}
+```
+
+### `case-body-catch`
+
+Catch exceptions thrown in the `case` block.
+
+```js
+switch (1) {
+    case 1: {
+        throw new Error("Error in block");
+    } catch (error) when (error.message.includes("block")) {
+        console.log("Caught an error in block:", error.message);
+    }
 }
 ```
 
@@ -613,15 +586,9 @@ do { /* RO */ } catch (e) {  /* ... */  } while ( /* BE */ )
 do { /* RO */ } catch (e)  when ( /* BE */) {  /* ... */  } catch (e) {  /* ... */  } while ( /* BE */ ) /* ... */
 /* ... */
 
-
-switch ( /* RO */ ) { /* RO */ } catch;
-switch ( /* RO */ ) { /* RO */ } catch (e);
-switch ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  }
-switch ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  } catch (e) {  /* ... */  } /* ... */
-switch ( /* RO */ ) { /* RO */ } catch (e) {  /* ... */  } finally { /* ... */} /* ... */
-switch ( /* RO */ ) { case 1: { /* RO */ } catch; } when ( /* BE */ );
-switch ( /* RO */ ) { case 1: { /* RO */ } catch when ( /* BE */ ) { /* ... */} }/* ... */
-switch ( /* RO */ ) { case 1: { /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } } /* ... */
+switch ( /* RO */ ) { case 1: { /* RO */ } catch; }
+switch ( /* RO */ ) { case 1: { /* RO */ } catch when ( /* BE */ ) { /* ... */}
+switch ( /* RO */ ) { case 1: { /* RO */ } catch when ( /* BE */ ) { /* ... */} finally { /* ... */ } }
 /* ... */
 
 function f() { /* RO */ } catch;
@@ -638,11 +605,7 @@ function f() { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } catch /* .
 function f() { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ }
 function f() { /* RO */ } catch (e) when ( /* BE */ ) {  /* ... */  } finally { /* ... */ } catch /* ... */
 /* ... */
-
-
 ```
-
-
 
 ## Analysis
 
